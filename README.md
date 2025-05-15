@@ -15,10 +15,14 @@
 - NodeJS
 
 ### Instalação
-``` npm install ```
+``` 
+npm install
+```
 
 ### Abertura de servidor
-``` node app.js ```
+``` 
+node app.js
+```
 
 ## WebSocket endpoints
 
