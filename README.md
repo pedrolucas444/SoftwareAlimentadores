@@ -33,11 +33,13 @@ ws://localhost:3000/ws/alimentador
 ```
 {
     "time": "16:19:17",
-    "ar": {
-        "Posicao": 51,
-        "Erro": 36,
-        "Temperatura": 2,
-        "Ciclos": 50
+    "alimentador": {
+        "HoraLiga": 51,
+        "HoraDesliga": 36,
+        "Setpoint": 2,
+        "TempoCiclo": 50,
+        "Hora": 16,
+        "Minuto": 15,
     }
 }
 ```
