@@ -28,7 +28,7 @@ node app.js
 
 ### Válvula de ar
 ```
-ws://localhost:3000/ws/ar
+ws://localhost:3000/ws/alimentador
 ```
 ```
 {
@@ -38,63 +38,6 @@ ws://localhost:3000/ws/ar
         "Erro": 36,
         "Temperatura": 2,
         "Ciclos": 50
-    }
-}
-```
-
-### Válvula gaveta
-```
-ws://localhost:3000/ws/gaveta
-```
-```
-{
-    "time": "17:38:50",
-    "gaveta": {
-        "HoraLigada": 22,
-        "HoraDesligada": 99,
-        "TempoCiclo": 10,
-        "TempoAberto": 98,
-        "SetPoint": 85,
-        "Modo": 20,
-        "Ciclos": 36,
-        "Erro": 1,
-        "Posicao": 36
-    }
-}
-```
-### Válvula esfera
-```
-ws://localhost:3000/ws/esfera
-```
-```
-{
-    "time": "16:19:16",
-    "esfera": {
-        "HoraLigada": 88,
-        "HoraDesligada": 3,
-        "TempoCiclo": 51,
-        "TempoAberto": 78,
-        "SetPoint": 42,
-        "Modo": 76,
-        "Ciclos": 51,
-        "Erro": 13,
-        "Posicao": 69
-    }
-}
-```
-### Monitor de temperatura
-```
-ws://localhost:3000/ws/temperatura
-```
-```
-{
-    "time": "16:19:12",
-    "temperatura": {
-        "Temperatura_1": 62,
-        "Temperatura_2": 12,
-        "Temperatura_3": 50,
-        "Temperatura_4": 40,
-        "Erro": 77
     }
 }
 ```
