@@ -24,9 +24,9 @@ npm install
 node app.js
 ```
 
-## WebSocket endpoints
+## WebSocket endpoint
 
-### Válvula de ar
+### Endpoint do Alimentador
 ```
 ws://localhost:3000/ws/alimentador
 ```
