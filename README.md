@@ -14,7 +14,7 @@
 ### Pré requisitos
 - NodeJS
 
-### Instalação
+### Instalação de dependências
 ``` 
 npm install
 ```
@@ -32,14 +32,34 @@ ws://localhost:3000/ws/alimentador
 ```
 ```
 {
-    "time": "16:19:17",
-    "alimentador": {
-        "HoraLiga": 51,
-        "HoraDesliga": 36,
-        "Setpoint": 2,
-        "TempoCiclo": 50,
-        "Hora": 16,
-        "Minuto": 15,
+    "sucess": "Sucesso!",
+    "data": {
+        "alimentador": {
+            "Selecionado": 77,
+            "HoraLiga": 50,
+            "HoraDesliga": 64,
+            "Setpoint": 93,
+            "TempoCiclo": 35,
+            "Temperatura": 42,
+            "Erro": 23,
+            "Posicao": 97,
+            "Hora": 5,
+            "Minuto": 16,
+            "Ciclos": 62,
+            "QuantReservatorio": 14
+        },
+        "erros": {
+            "QtdErro1": 58,
+            "QtdErro2": 6,
+            "QtdErro3": 3,
+            "QtdErro4": 97,
+            "QtdErro5": 2,
+            "QtdErro6": 37,
+            "QtdErro7": 68,
+            "ComErro1": 63,
+            "ComErro2": 88
+        },
+        "monitor": {}
     }
 }
 ```
