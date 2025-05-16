@@ -82,12 +82,13 @@ async function lerTodosCampos() {
     if (!client.isOpen) await conectarModuloMestre();
     const respostaGeral = await client.readHoldingRegisters(7, 28);
     const dadosFormatados = {};
-    Object.entries(mapa_leitura).forEach(([campo, config]) => {
-      dadosFormatados[campo] = {};
+    Object.entries(mapa_leitura).forEach(([grupo, config]) => {
+      dadosFormatados[grupo] = {};
 
-      config.fields.forEach((dados, index) => {
+      config.fields.forEach((nomeCampo, index) => {
         const endereco = config.address + index;
-        dadosFormatados[campo][dados.trim()] = respostaGeral.data[endereco];
+        const indice = endereco - 7;
+        dadosFormatados[grupo][nomeCampo.trim()] = respostaGeral.data[indice];
       });
     });
     return dadosFormatados;
@@ -95,11 +96,59 @@ async function lerTodosCampos() {
     console.log("Erro ler todos os campos", err);
   }
 }
-async function lerAlimentador() {}
 
-async function lerErros() {}
+//precisa fazer teste relacionado ao ID
+async function lerAlimentador() {
+  try {
+    const response = await client.readHoldingRegisters(
+      mapa_leitura.alimentador.address,
+      mapa_leitura.alimentador.fields.length
+    );
+    const dados = {};
+    mapa_leitura.alimentador.fields.forEach((campo, index) => {
+      dados[campo.trim()] = response.data[index];
+    });
+    return dados;
+  } catch (err) {
+    console.error("Erro ao ler alimentador:", err.message);
+    throw err;
+  }
+}
 
-async function lerMonitor() {}
+async function lerErros() {
+  try {
+    const response = await client.readHoldingRegisters(
+      mapa_leitura.erros.address,
+      mapa_leitura.erros.fields.length
+    );
+    const dados = {};
+    mapa_leitura.erros.fields.forEach((campo, index) => {
+      dados[campo.trim()] = response.data[index];
+    });
+    return dados;
+  } catch (err) {
+    console.error("Erro ao ler os erros:", err.message);
+    throw err;
+  }
+}
+
+async function lerMonitor() {
+  try {
+    const response = await client.readHoldingRegisters(
+      mapa_leitura.monitor.address,
+      mapa_leitura.monitor.fields.length
+    );
+    const dados = {};
+    mapa_leitura.monitor.fields.forEach((campo, index) => {
+      dados[campo.trim()] = response.data[index];
+    });
+    return dados;
+  } catch (err) {
+    console.error("Erro ao ler monitor:", err.message);
+    throw err;
+  }
+}
+
 export default {
   lerTodosCampos,
   conectarModuloMestre,
