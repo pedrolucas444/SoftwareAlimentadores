@@ -1,4 +1,4 @@
-import moduloMestre from "../service/ModuloMestre.js";
+import moduloMestre from "../service/moduloMestre.js";
 
 class ModuloMestreController {
   static async getTodos(req, res) {
