@@ -6,7 +6,7 @@ const config = {
   ip: "192.168.0.240",
   port: 502,
   id: 99,
-  tempo: 500,
+  tempo: 1000,
 };
 
 const mapa_leitura = {
@@ -67,7 +67,7 @@ const mapa_escrita = {
   },
 };
 
-async function conectarModbus() {
+async function conectarModuloMestre() {
   if (!config.ip) {
     console.error("IP do Modbus não definido!");
     return;
@@ -82,21 +82,7 @@ async function conectarModbus() {
   }
 }
 
-setInterval(async () => {
-  try {
-    if (!client.isOpen) await conectarModbus();
-    await client.readHoldingRegisters(7, 1);
-    statusModbus = true;
-  } catch {
-    statusModbus = false;
-  }
-}, 1000);
-
-function getStatusModbus() {
-  return statusModbus;
-}
-
-function setIpModbus(ip) {
+function setIpModuloMestre(ip) {
   if (client.isOpen) {
     client.close(() => {
       console.log("Conexão Modbus fechada para troca de IP.");
@@ -105,9 +91,9 @@ function setIpModbus(ip) {
   config.ip = ip;
 }
 
-async function lerTodosDispositivos() {
+async function lerTodosCampos() {
   try {
-    if (!client.isOpen) await conectarModbus();
+    if (!client.isOpen) await conectarModuloMestre();
     const respostaGeral = await client.readHoldingRegisters(7, 28);
     const dadosFormatados = {};
 
@@ -162,7 +148,7 @@ async function lerErros() {
   }
 }
 
-async function lerMonitor() {
+async function lerTemperaturaUmidade() {
   try {
     const response = await client.readHoldingRegisters(
       mapa_leitura.monitor.address,
@@ -246,7 +232,7 @@ async function escreverDispositivoInterno(dispositivo, config, valor) {
 }
 
 console.log("Iniciando cliente Modulo Mestre...");
-setInterval(lerTodosDispositivos, config.tempo);
+setInterval(lerTodosCampos, config.tempo);
 
 process.on("SIGINT", () => {
   console.log("\nDesconectando...");
@@ -255,12 +241,11 @@ process.on("SIGINT", () => {
 });
 
 export default {
-  conectarModbus,
-  lerTodosDispositivos,
+  conectarModuloMestre,
+  lerTodosCampos,
   escreverDispositivo,
   lerAlimentador,
   lerErros,
-  lerMonitor,
-  getStatusModbus,
-  setIpModbus,
+  lerTemperaturaUmidade,
+  setIpModuloMestre,
 };

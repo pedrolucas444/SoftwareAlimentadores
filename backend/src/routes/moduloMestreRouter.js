@@ -7,7 +7,8 @@ router.get("/todos", ModuloMestreController.getTodos);
 router.get("/alimentador", ModuloMestreController.getAlimentador);
 router.get("/erros", ModuloMestreController.getErros);
 router.get("temperaturaUmidade", ModuloMestreController.getTemperaturaUmidade);
+
 router.post("/ip", ModuloMestreController.setIP);
-router.post();
+router.post("/config", ModuloMestreController.setConfig);
 
 export default router;
