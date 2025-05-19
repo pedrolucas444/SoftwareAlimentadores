@@ -1,26 +1,12 @@
 import ModbusRTU from "modbus-serial";
 const client = new ModbusRTU();
+let statusModbus = false;
 
 const config = {
   ip: "192.168.0.240",
   port: 502,
   id: 99,
-  tempo: 1000,
-};
-
-const mapa_escrita = {
-  alimentador: {
-    address: 0,
-    fields: [
-      "registradorAlimentador",
-      "registradorHoraLiga",
-      "registradorHoraDesliga",
-      "registradorSetpoint",
-      "resgistradorTemploCiclo",
-      "registradorHora",
-      "registradorMinuto",
-    ],
-  },
+  tempo: 500,
 };
 
 const mapa_leitura = {
@@ -66,38 +52,82 @@ const mapa_leitura = {
   },
 };
 
-async function conectarModuloMestre() {
+const mapa_escrita = {
+  alimentador: {
+    address: 0,
+    fields: [
+      "Alimentador",
+      "HoraLiga",
+      "HoraDesliga",
+      "Setpoint",
+      "TempoCiclo",
+      "Hora",
+      "Minuto",
+    ],
+  },
+};
+
+async function conectarModbus() {
+  if (!config.ip) {
+    console.error("IP do Modbus não definido!");
+    return;
+  }
   try {
     await client.connectTCP(config.ip, { port: config.port });
     client.setID(config.id);
     client.setTimeout(config.tempo);
-    console.log("Conectado com o Modulo Mestre");
+    console.log("Conectado ao Modulo Mestre");
   } catch (err) {
-    console.log("Erro de Conexão", err);
+    console.error("Erro na conexão:", err.message);
   }
 }
 
-async function lerTodosCampos() {
+setInterval(async () => {
   try {
-    if (!client.isOpen) await conectarModuloMestre();
+    if (!client.isOpen) await conectarModbus();
+    await client.readHoldingRegisters(7, 1);
+    statusModbus = true;
+  } catch {
+    statusModbus = false;
+  }
+}, 1000);
+
+function getStatusModbus() {
+  return statusModbus;
+}
+
+function setIpModbus(ip) {
+  if (client.isOpen) {
+    client.close(() => {
+      console.log("Conexão Modbus fechada para troca de IP.");
+    });
+  }
+  config.ip = ip;
+}
+
+async function lerTodosDispositivos() {
+  try {
+    if (!client.isOpen) await conectarModbus();
     const respostaGeral = await client.readHoldingRegisters(7, 28);
     const dadosFormatados = {};
-    Object.entries(mapa_leitura).forEach(([grupo, config]) => {
-      dadosFormatados[grupo] = {};
 
-      config.fields.forEach((nomeCampo, index) => {
-        const endereco = config.address + index;
-        const indice = endereco - 7;
-        dadosFormatados[grupo][nomeCampo.trim()] = respostaGeral.data[indice];
+    Object.entries(mapa_leitura).forEach(([nomeDispositivo, dispositivo]) => {
+      dadosFormatados[nomeDispositivo] = {};
+
+      dispositivo.fields.forEach((campo, index) => {
+        const endereco = dispositivo.address + index;
+        const indice = endereco - 7; // 7 é o endereço inicial da leitura
+        dadosFormatados[nomeDispositivo][campo.trim()] =
+          respostaGeral.data[indice];
       });
     });
+
     return dadosFormatados;
   } catch (err) {
-    console.log("Erro ler todos os campos", err);
+    console.error("Erro geral:", err.message);
   }
 }
 
-//precisa fazer teste relacionado ao ID
 async function lerAlimentador() {
   try {
     const response = await client.readHoldingRegisters(
@@ -127,7 +157,7 @@ async function lerErros() {
     });
     return dados;
   } catch (err) {
-    console.error("Erro ao ler os erros:", err.message);
+    console.error("Erro ao ler erros:", err.message);
     throw err;
   }
 }
@@ -149,10 +179,88 @@ async function lerMonitor() {
   }
 }
 
+// Fila de escrita universal para todos os dispositivos
+let escrevendo = false;
+const filaEscrita = [];
+
+// Remove comandos antigos do mesmo tipo antes de adicionar um novo
+async function escreverDispositivo(dispositivo, config, valor) {
+  for (let i = filaEscrita.length - 1; i >= 0; i--) {
+    if (
+      filaEscrita[i].dispositivo === dispositivo &&
+      filaEscrita[i].config === config
+    ) {
+      filaEscrita.splice(i, 1);
+    }
+  }
+  return new Promise((resolve, reject) => {
+    filaEscrita.push({ dispositivo, config, valor, resolve, reject });
+    processarFilaEscrita();
+  });
+}
+
+async function processarFilaEscrita() {
+  if (escrevendo || filaEscrita.length === 0) return;
+  escrevendo = true;
+  const { dispositivo, config, valor, resolve, reject } = filaEscrita.shift();
+  try {
+    await escreverDispositivoInterno(dispositivo, config, valor);
+    resolve();
+  } catch (err) {
+    reject(err);
+  }
+  escrevendo = false;
+  processarFilaEscrita();
+}
+
+// Função interna que faz a escrita real
+async function escreverDispositivoInterno(dispositivo, config, valor) {
+  const inicio = Date.now();
+  if (!mapa_escrita[dispositivo]) {
+    throw new Error(`Dispositivo "${dispositivo}" não encontrado!`);
+  }
+  if (!client.isOpen) await conectarModbus();
+  const campos = mapa_escrita[dispositivo].fields;
+  const index = campos.indexOf(config);
+  if (index === -1) {
+    throw new Error(
+      `Configuração "${config}" não existe no dispositivo ${dispositivo}!`
+    );
+  }
+  const registrador = mapa_escrita[dispositivo].address + index;
+  console.log(
+    `[DEBUG] Vai escrever ${dispositivo}.${config} (reg ${registrador}) = ${valor}`
+  );
+  await client.writeRegister(registrador, valor);
+  // Leitura de verificação após escrita
+  const leitura = await client.readHoldingRegisters(registrador, 1);
+  console.log(
+    `[DEBUG] Valor lido após escrita em ${dispositivo}.${config} (reg ${registrador}): ${leitura.data[0]}`
+  );
+  const fim = Date.now();
+  console.log(
+    `[${new Date().toISOString()}] Escrita em ${dispositivo}.${config} (${registrador}) valor=${valor} - Tempo: ${
+      fim - inicio
+    }ms`
+  );
+}
+
+console.log("Iniciando cliente Modulo Mestre...");
+setInterval(lerTodosDispositivos, config.tempo);
+
+process.on("SIGINT", () => {
+  console.log("\nDesconectando...");
+  client.close();
+  process.exit();
+});
+
 export default {
-  lerTodosCampos,
-  conectarModuloMestre,
+  conectarModbus,
+  lerTodosDispositivos,
+  escreverDispositivo,
   lerAlimentador,
   lerErros,
   lerMonitor,
+  getStatusModbus,
+  setIpModbus,
 };
