@@ -5,7 +5,7 @@ const wssTodos = new WebSocketServer({ noServer: true });
 const wssAlimentador = new WebSocketServer({ noServer: true });
 const wssErro = new WebSocketServer({ noServer: true });
 const wssTemperaturaUmidade = new WebSocketServer({ noServer: true });
-const time = 1000;
+const time = 2000;
 
 wssTodos.on("connection", (ws) => {
   const interval = setInterval(async () => {

@@ -1,12 +1,11 @@
 import ModbusRTU from "modbus-serial";
 const client = new ModbusRTU();
-let statusModbus = false;
 
 const config = {
   ip: "192.168.0.240",
   port: 502,
   id: 99,
-  tempo: 1000,
+  tempo: 2000,
 };
 
 const mapa_leitura = {
@@ -69,8 +68,7 @@ const mapa_escrita = {
 
 async function conectarModuloMestre() {
   if (!config.ip) {
-    console.error("IP do Modbus não definido!");
-    return;
+    console.log("IP do Modbus não definido!");
   }
   try {
     await client.connectTCP(config.ip, { port: config.port });
@@ -78,7 +76,7 @@ async function conectarModuloMestre() {
     client.setTimeout(config.tempo);
     console.log("Conectado ao Modulo Mestre");
   } catch (err) {
-    console.error("Erro na conexão:", err.message);
+    console.log("Erro na conexão:", err.message);
   }
 }
 
@@ -97,11 +95,11 @@ async function lerTodosCampos() {
     const respostaGeral = await client.readHoldingRegisters(7, 28);
     const dadosFormatados = {};
 
-    Object.entries(mapa_leitura).forEach(([nomeDispositivo, dispositivo]) => {
+    Object.entries(mapa_leitura).forEach(([nomeDispositivo, config]) => {
       dadosFormatados[nomeDispositivo] = {};
 
-      dispositivo.fields.forEach((campo, index) => {
-        const endereco = dispositivo.address + index;
+      config.fields.forEach((campo, index) => {
+        const endereco = config.address + index;
         const indice = endereco - 7; // 7 é o endereço inicial da leitura
         dadosFormatados[nomeDispositivo][campo.trim()] =
           respostaGeral.data[indice];
@@ -165,7 +163,7 @@ async function lerTemperaturaUmidade() {
   }
 }
 
-// Fila de escrita universal para todos os dispositivos
+// Fila de escrita universal
 let escrevendo = false;
 const filaEscrita = [];
 
@@ -180,7 +178,7 @@ async function escreverDispositivo(dispositivo, config, valor) {
     }
   }
   return new Promise((resolve, reject) => {
-    filaEscrita.push({ dispositivo, config, valor, resolve, reject });
+    filaEscrita.push({ dispositivo, config, valor, resolve, reject }); // insere no final
     processarFilaEscrita();
   });
 }
@@ -188,7 +186,7 @@ async function escreverDispositivo(dispositivo, config, valor) {
 async function processarFilaEscrita() {
   if (escrevendo || filaEscrita.length === 0) return;
   escrevendo = true;
-  const { dispositivo, config, valor, resolve, reject } = filaEscrita.shift();
+  const { dispositivo, config, valor, resolve, reject } = filaEscrita.shift(); // remove no inicio
   try {
     await escreverDispositivoInterno(dispositivo, config, valor);
     resolve();

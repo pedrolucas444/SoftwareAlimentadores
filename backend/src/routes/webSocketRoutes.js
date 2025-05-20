@@ -10,15 +10,15 @@ export default function registerWebsocketRoutes(server, websocket) {
       wssTodos.handleUpgrade(request, socket, head, (ws) => {
         wssTodos.emit("connection", ws, request);
       });
-    } else if (pathname === "ws/alimentador") {
+    } else if (pathname === "/ws/alimentador") {
       wssAlimentador.handleUpgrade(request, socket, head, (ws) => {
         wssAlimentador.emit("connection", ws, request);
       });
-    } else if (pathname === "ws/erros") {
+    } else if (pathname === "/ws/erros") {
       wssErro.handleUpgrade(request, socket, head, (ws) => {
         wssErro.emit("connection", ws, request);
       });
-    } else if (pathname === "ws/temperaturaUmidade") {
+    } else if (pathname === "/ws/tempUmi") {
       wssTemperaturaUmidade.handleUpgrade(request, socket, head, (ws) => {
         wssTemperaturaUmidade.emit("connection", ws, socket);
       });

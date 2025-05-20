@@ -61,9 +61,9 @@ class ModuloMestreController {
     }
   }
 
-  static async setIP(resquest, response) {
+  static async setIP(request, response) {
     try {
-      const { ip } = resquest.body;
+      const { ip } = request.body;
       if (!ip) {
         return response.status(400).json({ error: "IP não informado" });
       }
@@ -79,15 +79,15 @@ class ModuloMestreController {
   }
 
   static async setConfig(request, response) {
-    const dados = request.body;
     try {
-      for (const [config, valor] of Object.entries(dados)) {
-        await moduloMestre.escreverDispositivo("alimentador", config, value);
+      const dados = request.body;
+      for (const [campo, valor] of Object.entries(dados)) {
+        await moduloMestre.escreverDispositivo("alimentador", campo, valor);
       }
       response.json({
         sucess: true,
-        message: "Todos os campos foram enviados com sucesso!",
-        data: dados,
+        message: "Configuração enviada com sucesso",
+        dados,
       });
     } catch (err) {
       response.status(500).json({ error: err.message });
