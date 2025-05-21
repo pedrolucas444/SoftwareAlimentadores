@@ -3,14 +3,14 @@ import moduloMestre from "../service/moduloMestre.js";
 class ModuloMestreController {
   static async getTodos(request, response) {
     try {
-      const dados = await moduloMestre.lerTodosCampos();
+      const data = await moduloMestre.lerTodosCampos();
       response.json({
-        sucess: "Sucesso!",
-        data: dados,
+        sucess: true,
+        data,
       });
     } catch (err) {
       response.status(500).json({
-        sucess: "Falha request",
+        sucess: false,
         error: err.message,
       });
     }
@@ -18,14 +18,14 @@ class ModuloMestreController {
 
   static async getAlimentador(request, response) {
     try {
-      const dados = await moduloMestre.lerAlimentador();
+      const data = await moduloMestre.lerAlimentador();
       response.json({
-        sucess: "Sucesso!",
-        data: dados,
+        sucess: true,
+        data,
       });
     } catch (err) {
       response.status(500).json({
-        sucess: "Falha request",
+        sucess: false,
         error: err.message,
       });
     }
@@ -33,14 +33,14 @@ class ModuloMestreController {
 
   static async getErros(request, response) {
     try {
-      const dados = await moduloMestre.lerErros();
+      const data = await moduloMestre.lerErros();
       response.json({
-        sucess: "Sucesso!",
-        data: dados,
+        sucess: true,
+        data,
       });
     } catch (err) {
       response.status(500).json({
-        sucess: "Falha request",
+        sucess: false,
         error: err.message,
       });
     }
@@ -48,14 +48,14 @@ class ModuloMestreController {
 
   static async getTemperaturaUmidade(request, response) {
     try {
-      const dados = await moduloMestre.lerTemperaturaUmidade();
+      const data = await moduloMestre.lerTemperaturaUmidade();
       response.json({
-        sucess: "Sucesso!",
-        data: dados,
+        sucess: true,
+        data,
       });
     } catch (err) {
       response.status(500).json({
-        sucess: "Falha request",
+        sucess: false,
         error: err.message,
       });
     }
@@ -74,7 +74,10 @@ class ModuloMestreController {
         ip,
       });
     } catch (err) {
-      response.status(500).json({ error: err.message });
+      response.status(500).json({
+        sucess: false,
+        error: err.message,
+      });
     }
   }
 
@@ -90,7 +93,10 @@ class ModuloMestreController {
         dados,
       });
     } catch (err) {
-      response.status(500).json({ error: err.message });
+      response.status(500).json({
+        sucess: false,
+        error: err.message,
+      });
     }
   }
 
@@ -102,9 +108,15 @@ class ModuloMestreController {
       }
       const alimentador = await moduloMestre.lerAlimentador();
       delete alimentador.Alimentador;
-      response.json(alimentador);
+      response.json({
+        sucess: true,
+        alimentador,
+      });
     } catch (err) {
-      response.status(500).json({ error: err.message });
+      response.status(500).json({
+        sucess: false,
+        error: err.message,
+      });
     }
   }
 }
