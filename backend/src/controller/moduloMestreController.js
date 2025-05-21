@@ -93,5 +93,19 @@ class ModuloMestreController {
       response.status(500).json({ error: err.message });
     }
   }
+
+  static async setID(request, response) {
+    try {
+      const dados = request.body;
+      for (const [campo, valor] of Object.entries(dados)) {
+        await moduloMestre.escreverDispositivo("alimentador", campo, valor);
+      }
+      const alimentador = await moduloMestre.lerAlimentador();
+      delete alimentador.Alimentador;
+      response.json(alimentador);
+    } catch (err) {
+      response.status(500).json({ error: err.message });
+    }
+  }
 }
 export default ModuloMestreController;

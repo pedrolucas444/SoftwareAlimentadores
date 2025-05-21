@@ -9,6 +9,7 @@ router.get("/erros", ModuloMestreController.getErros);
 router.get("/tempUmi", ModuloMestreController.getTemperaturaUmidade);
 
 router.post("/ip", ModuloMestreController.setIP);
+router.post("/id", ModuloMestreController.setID);
 router.post("/config", ModuloMestreController.setConfig);
 
 export default router;
