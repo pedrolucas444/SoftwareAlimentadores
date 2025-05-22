@@ -100,7 +100,7 @@ async function lerTodosCampos() {
 
       config.fields.forEach((campo, index) => {
         const endereco = config.address + index;
-        const indice = endereco - 7; // 7 é o endereço inicial da leitura
+        const indice = endereco - 7;
         dadosFormatados[nomeDispositivo][campo.trim()] =
           respostaGeral.data[indice];
       });
