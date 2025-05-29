@@ -18,7 +18,8 @@ class ModuloMestreController {
 
   static async getAlimentador(request, response) {
     try {
-      const data = await moduloMestre.lerAlimentador();
+      const id = Number(request.params.id);
+      const data = await moduloMestre.lerAlimentador(id);
       response.json({
         sucess: true,
         data,
@@ -85,32 +86,11 @@ class ModuloMestreController {
     try {
       const dados = request.body;
       for (const [campo, valor] of Object.entries(dados)) {
-        await moduloMestre.escreverDispositivo("alimentador", campo, valor);
+        await moduloMestre.escreverDispositivo(campo, valor);
       }
       response.json({
         sucess: true,
         message: "Configuração enviada com sucesso",
-        dados,
-      });
-    } catch (err) {
-      response.status(500).json({
-        sucess: false,
-        error: err.message,
-      });
-    }
-  }
-
-  static async setID(request, response) {
-    try {
-      const dados = request.body;
-      for (const [campo, valor] of Object.entries(dados)) {
-        await moduloMestre.escreverDispositivo("alimentador", campo, valor);
-      }
-      const alimentador = await moduloMestre.lerAlimentador();
-      delete alimentador.Alimentador;
-      response.json({
-        sucess: true,
-        alimentador,
       });
     } catch (err) {
       response.status(500).json({

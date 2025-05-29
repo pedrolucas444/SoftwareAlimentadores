@@ -2,7 +2,7 @@ import ModbusRTU from "modbus-serial";
 const client = new ModbusRTU();
 
 const config = {
-  ip: "192.168.0.240",
+  ip: "192.168.0.253",
   port: 502,
   id: 99,
   tempo: 2000,
@@ -12,7 +12,7 @@ const mapa_leitura = {
   alimentador: {
     address: 7,
     fields: [
-      "Selecionado",
+      "selecionado",
       "HoraLiga",
       "HoraDesliga",
       "Setpoint",
@@ -52,18 +52,8 @@ const mapa_leitura = {
 };
 
 const mapa_escrita = {
-  alimentador: {
-    address: 0,
-    fields: [
-      "Alimentador",
-      "HoraLiga",
-      "HoraDesliga",
-      "Setpoint",
-      "TempoCiclo",
-      "Hora",
-      "Minuto",
-    ],
-  },
+  address: 0,
+  fields: ["Id", "HoraLiga", "HoraDesliga", "Setpoint", "TempoCiclo"],
 };
 
 async function conectarModuloMestre() {
@@ -112,8 +102,13 @@ async function lerTodosCampos() {
   }
 }
 
-async function lerAlimentador() {
+async function lerAlimentador(id) {
+  if (!client.isOpen) await conectarModuloMestre();
   try {
+    const index = mapa_escrita["alimentador"].fields.indexOf("Id");
+    const registrador = mapa_escrita["alimentador"].address + index + 7;
+    await client.writeRegister(registrador, id);
+
     const response = await client.readHoldingRegisters(
       mapa_leitura.alimentador.address,
       mapa_leitura.alimentador.fields.length
@@ -198,34 +193,30 @@ async function processarFilaEscrita() {
 }
 
 // Função interna que faz a escrita real
-async function escreverDispositivoInterno(dispositivo, config, valor) {
+async function escreverDispositivoInterno(config, valor) {
   const inicio = Date.now();
-  if (!mapa_escrita[dispositivo]) {
-    throw new Error(`Dispositivo "${dispositivo}" não encontrado!`);
-  }
-  if (!client.isOpen) await conectarModbus();
-  const campos = mapa_escrita[dispositivo].fields;
-  const index = campos.indexOf(config);
+
+  if (!client.isOpen) await conectarModuloMestre();
+
+  const index = mapa_escrita.fields.indexOf(config);
   if (index === -1) {
-    throw new Error(
-      `Configuração "${config}" não existe no dispositivo ${dispositivo}!`
-    );
+    throw new Error(`Configuração "${config}" não existe no mapa de escrita!`);
   }
-  const registrador = mapa_escrita[dispositivo].address + index;
-  console.log(
-    `[DEBUG] Vai escrever ${dispositivo}.${config} (reg ${registrador}) = ${valor}`
-  );
+  const registrador = mapa_escrita.address + index;
+
+  console.log(`[DEBUG] Vai escrever ${config} (reg ${registrador}) = ${valor}`);
   await client.writeRegister(registrador, valor);
+
   // Leitura de verificação após escrita
   const leitura = await client.readHoldingRegisters(registrador, 1);
   console.log(
-    `[DEBUG] Valor lido após escrita em ${dispositivo}.${config} (reg ${registrador}): ${leitura.data[0]}`
+    `[DEBUG] Valor lido após escrita ${config} (reg ${registrador}): ${leitura.data[0]}`
   );
   const fim = Date.now();
   console.log(
-    `[${new Date().toISOString()}] Escrita em ${dispositivo}.${config} (${registrador}) valor=${valor} - Tempo: ${
+    `[DEBUG] Escrita ${config} (${registrador}) valor=${valor} - Tempo: ${
       fim - inicio
-    }ms`
+    }ms\n`
   );
 }
 
