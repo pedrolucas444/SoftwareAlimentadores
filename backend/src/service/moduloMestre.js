@@ -105,8 +105,8 @@ async function lerTodosCampos() {
 async function lerAlimentador(id) {
   if (!client.isOpen) await conectarModuloMestre();
   try {
-    const index = mapa_escrita["alimentador"].fields.indexOf("Id");
-    const registrador = mapa_escrita["alimentador"].address + index + 7;
+    const index = mapa_escrita.fields.indexOf("Id");
+    const registrador = mapa_escrita.address + index + 7;
     await client.writeRegister(registrador, id);
 
     const response = await client.readHoldingRegisters(
