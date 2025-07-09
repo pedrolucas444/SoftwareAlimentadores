@@ -1,14 +1,22 @@
 import { Router } from "express";
-import ModuloMestreController from "../controller/ModuloMestreController.js";
+import moduloMestreController from "../controller/moduloMestreController.js";
 
 const router = Router();
 
-router.get("/todos", ModuloMestreController.getTodos);
-router.get("/alimentador/:id", ModuloMestreController.getAlimentador);
-router.get("/erros", ModuloMestreController.getErros);
-router.get("/tempUmi", ModuloMestreController.getTemperaturaUmidade);
+router.get("/alimentador", moduloMestreController.getAlimentador);
+router.get(
+  "/alimentador-escrita/:id",
+  moduloMestreController.getAlimentadorEscrita
+);
+router.get("/historico", moduloMestreController.getHistorico);
+router.get("/ultimo-por-id", moduloMestreController.getUltimoDeCadaID);
+router.get(
+  "/alimentador-manual/:id",
+  moduloMestreController.getUltimoSetPointManual
+);
 
-router.post("/ip", ModuloMestreController.setIP);
-router.post("/config", ModuloMestreController.setConfig);
+router.post("/ip", moduloMestreController.setIP);
+router.post("/alimentador/:id", moduloMestreController.setAlimentador);
+router.post("/registraPosicao", moduloMestreController.setRegistraPosicao);
 
 export default router;

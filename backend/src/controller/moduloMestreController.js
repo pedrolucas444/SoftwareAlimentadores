@@ -1,16 +1,16 @@
 import moduloMestre from "../service/moduloMestre.js";
 
-class ModuloMestreController {
+class moduloMestreController {
   static async getTodos(request, response) {
     try {
       const data = await moduloMestre.lerTodosCampos();
       response.json({
-        sucess: true,
+        success: true,
         data,
       });
     } catch (err) {
       response.status(500).json({
-        sucess: false,
+        success: false,
         error: err.message,
       });
     }
@@ -19,45 +19,71 @@ class ModuloMestreController {
   static async getAlimentador(request, response) {
     try {
       const id = Number(request.params.id);
-      const data = await moduloMestre.lerAlimentador(id);
+      if (isNaN(id)) {
+        return response.status(400).json({
+          success: false,
+          error: "ID inválido",
+        });
+      }
+
+      const dados = await moduloMestre.lerAlimentador(id);
       response.json({
-        sucess: true,
-        data,
+        success: true,
+        data: dados,
       });
     } catch (err) {
       response.status(500).json({
-        sucess: false,
+        success: false,
+        error: "Erro ao acessar os dados",
+      });
+    }
+  }
+
+  static async getAlimentadorEscrita(request, response) {
+    try {
+      const id = Number(request.params.id);
+      if (isNaN(id)) {
+        return response
+          .status(400)
+          .json({ success: false, error: "ID inválido" });
+      }
+      const dados = await moduloMestre.getAlimentadorEscrita(id);
+      response.json({
+        success: true,
+        data: dados,
+      });
+    } catch (err) {
+      response.status(500).json({
+        success: false,
         error: err.message,
       });
     }
   }
 
-  static async getErros(request, response) {
+  static async setAlimentador(request, response) {
     try {
-      const data = await moduloMestre.lerErros();
-      response.json({
-        sucess: true,
-        data,
-      });
-    } catch (err) {
-      response.status(500).json({
-        sucess: false,
-        error: err.message,
-      });
-    }
-  }
+      const id = Number(request.params.id);
+      const campos = request.body;
 
-  static async getTemperaturaUmidade(request, response) {
-    try {
-      const data = await moduloMestre.lerTemperaturaUmidade();
+      for (const [config, valor] of Object.entries(campos)) {
+        if (typeof valor === "number" && !isNaN(valor)) {
+          await moduloMestre.adicionarNaFila(id, config, valor);
+        } else {
+          console.log(
+            `[WARN] Ignorando escrita de ${config}: tipo=${typeof valor}, valor=${valor}`
+          );
+        }
+      }
+
       response.json({
-        sucess: true,
-        data,
+        success: true,
+        message: "Enviado com Sucesso!",
+        data: { id, ...campos },
       });
     } catch (err) {
       response.status(500).json({
-        sucess: false,
-        error: err.message,
+        success: false,
+        error: "Erro ao enviar para alimentador",
       });
     }
   }
@@ -65,39 +91,62 @@ class ModuloMestreController {
   static async setIP(request, response) {
     try {
       const { ip } = request.body;
-      if (!ip) {
-        return response.status(400).json({ error: "IP não informado" });
-      }
-      moduloMestre.setIpModuloMestre(ip);
+      await moduloMestre.setIpModuloMestre(ip);
       response.json({
-        sucess: true,
-        message: "IP atualizado com sucesso",
-        ip,
+        success: true,
+        message: "Enviado com Sucesso!",
       });
     } catch (err) {
       response.status(500).json({
-        sucess: false,
-        error: err.message,
+        success: false,
+        error: "Erro ao enviar o IP",
       });
     }
   }
 
-  static async setConfig(request, response) {
+  static async getHistorico(request, response) {
     try {
-      const dados = request.body;
-      for (const [campo, valor] of Object.entries(dados)) {
-        await moduloMestre.escreverDispositivo(campo, valor);
-      }
+      const dados = moduloMestre.getHistoricoLeituras();
       response.json({
-        sucess: true,
-        message: "Configuração enviada com sucesso",
+        success: true,
+        data: dados,
       });
     } catch (err) {
       response.status(500).json({
-        sucess: false,
-        error: err.message,
+        success: false,
+        error: "Erro ao acessar o histórico",
       });
     }
   }
+
+  static async getUltimoDeCadaID(request, response) {
+    try {
+      const dados = moduloMestre.getUltimoDeCadaID();
+      response.json({
+        success: true,
+        data: dados,
+      });
+    } catch (err) {
+      response.status(500).json({
+        success: false,
+        error: "Erro ao acessar o último de cada ID",
+      });
+    }
+  }
+
+  static async getUltimoSetPointManual(request, response) {
+    response.status(501).json({
+      success: false,
+      error: "Função não implementada sem repository",
+    });
+  }
+
+  static async setRegistraPosicao(request, response) {
+    response.status(501).json({
+      success: false,
+      error: "Função não implementada sem repository",
+    });
+  }
 }
-export default ModuloMestreController;
+
+export default moduloMestreController;

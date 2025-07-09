@@ -1,26 +1,17 @@
 import express from "express";
 import cors from "cors";
-import moduloMestreRoutes from "./src/routes/ModuloMestreRouter.js";
-import registerWebsocketRoutes from "./src/routes/webSocketRoutes.js";
-import {
-  wssTodos,
-  wssAlimentador,
-  wssErro,
-  wssTemperaturaUmidade,
-} from "./src/controller/webSocketController.js";
+import ModuloMestreRouter from "./src/routes/moduloMestreRouter.js";
+import RouterWS from "./src/routes/webSocketRoutes.js";
 
 const app = express();
+
 app.use(express.json());
 app.use(cors());
-app.use("/moduloMestre", moduloMestreRoutes);
+app.use("/moduloMestre", ModuloMestreRouter);
+
 const PORT = 3000;
 const server = app.listen(PORT, () => {
   console.log(`Servidor Rodando em http://localhost:${PORT}`);
 });
 
-registerWebsocketRoutes(server, {
-  wssTodos,
-  wssAlimentador,
-  wssErro,
-  wssTemperaturaUmidade,
-});
+RouterWS(server);

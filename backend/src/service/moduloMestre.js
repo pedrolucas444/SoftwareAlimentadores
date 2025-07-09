@@ -70,13 +70,25 @@ async function conectarModuloMestre() {
   }
 }
 
-function setIpModuloMestre(ip) {
+function isConnected() {
+  return client.isOpen;
+}
+
+async function setIpModuloMestre(ip) {
   if (client.isOpen) {
     client.close(() => {
       console.log("Conexão Modbus fechada para troca de IP.");
     });
   }
   config.ip = ip;
+}
+
+async function selecionarAlimentador(id) {
+  if (!client.isOpen) await conectarModuloMestre();
+
+  const indexId = mapa_escrita.fields.indexOf("Id");
+  const regId = mapa_escrita.address + indexId;
+  await client.writeRegister(regId, id);
 }
 
 async function lerTodosCampos() {
@@ -106,7 +118,7 @@ async function lerAlimentador(id) {
   if (!client.isOpen) await conectarModuloMestre();
   try {
     const index = mapa_escrita.fields.indexOf("Id");
-    const registrador = mapa_escrita.address + index + 7;
+    const registrador = mapa_escrita.address + index;
     await client.writeRegister(registrador, id);
 
     const response = await client.readHoldingRegisters(
@@ -158,22 +170,85 @@ async function lerTemperaturaUmidade() {
   }
 }
 
-// Fila de escrita universal
+// Lê os registradores de escrita de um alimentador específico
+async function getAlimentadorEscrita(id) {
+  if (!client.isOpen) await conectarModuloMestre();
+
+  const indexId = mapa_escrita.fields.indexOf("Id");
+  const regId = mapa_escrita.address + indexId;
+  await client.writeRegister(regId, id);
+
+  const escrita = await client.readHoldingRegisters(
+    mapa_escrita.address,
+    mapa_escrita.fields.length
+  );
+  const dadosAlimentador = {};
+  mapa_escrita.fields.forEach((campo, index) => {
+    dadosAlimentador[campo.trim()] = escrita.data[index];
+  });
+  return dadosAlimentador;
+}
+
+let historicoLeituras = [];
+let ultimaPosicaoSalva = {}; // Guarda a última posição salva
+
+async function atualizarHistorico() {
+  try {
+    const dados = await lerTodosCampos();
+    console.log(dados);
+    historicoLeituras.push({ ...dados, timestamp: new Date().toISOString() });
+    if (historicoLeituras.length > 30) historicoLeituras.shift();
+
+    if (
+      dados.alimentador?.selecionado &&
+      dados.alimentador?.Posicao !== undefined &&
+      dados.alimentador?.Posicao !==
+        ultimaPosicaoSalva[dados.alimentador.selecionado]
+    ) {
+      await repository.salvaPosicao(
+        dados.alimentador.selecionado,
+        dados.alimentador.Posicao,
+        dados.alimentador.Erro
+      );
+      ultimaPosicaoSalva[dados.alimentador.selecionado] =
+        dados.alimentador.Posicao;
+    }
+  } catch (err) {
+    console.log("Erro ao atualizar histórico:", err.message);
+  }
+}
+
+// Atualiza o histórico a cada 1 segundos
+setInterval(atualizarHistorico, 1000);
+
+// Monitoramento ativo da conexão Modbus
+setInterval(async () => {
+  if (!client.isOpen) {
+    console.log("[MONITOR] Modbus desconectado. Tentando reconectar...");
+    await conectarModuloMestre();
+  }
+}, 5000);
+
+function getHistoricoLeituras() {
+  return historicoLeituras;
+}
+
+function getUltimoDeCadaID() {
+  const ultimos = {};
+  historicoLeituras.forEach((item) => {
+    if (item.alimentador?.selecionado) {
+      ultimos[item.alimentador.selecionado] = item;
+    }
+  });
+  return Object.values(ultimos);
+}
+
 let escrevendo = false;
 const filaEscrita = [];
 
-// Remove comandos antigos do mesmo tipo antes de adicionar um novo
-async function escreverDispositivo(dispositivo, config, valor) {
-  for (let i = filaEscrita.length - 1; i >= 0; i--) {
-    if (
-      filaEscrita[i].dispositivo === dispositivo &&
-      filaEscrita[i].config === config
-    ) {
-      filaEscrita.splice(i, 1);
-    }
-  }
+async function adicionarNaFila(id, config, valor) {
   return new Promise((resolve, reject) => {
-    filaEscrita.push({ dispositivo, config, valor, resolve, reject }); // insere no final
+    filaEscrita.push({ id, config, valor, resolve, reject });
     processarFilaEscrita();
   });
 }
@@ -181,60 +256,64 @@ async function escreverDispositivo(dispositivo, config, valor) {
 async function processarFilaEscrita() {
   if (escrevendo || filaEscrita.length === 0) return;
   escrevendo = true;
-  const { dispositivo, config, valor, resolve, reject } = filaEscrita.shift(); // remove no inicio
-  try {
-    await escreverDispositivoInterno(dispositivo, config, valor);
-    resolve();
-  } catch (err) {
-    reject(err);
+  while (filaEscrita.length > 0) {
+    const { id, config, valor, resolve, reject } = filaEscrita.shift();
+    try {
+      await escreverDispositivoInterno(id, config, valor);
+      resolve();
+    } catch (err) {
+      reject(err);
+    }
   }
   escrevendo = false;
-  processarFilaEscrita();
 }
 
 // Função interna que faz a escrita real
-async function escreverDispositivoInterno(config, valor) {
+async function escreverDispositivoInterno(id, config, valor) {
   const inicio = Date.now();
 
   if (!client.isOpen) await conectarModuloMestre();
 
-  const index = mapa_escrita.fields.indexOf(config);
-  if (index === -1) {
-    throw new Error(`Configuração "${config}" não existe no mapa de escrita!`);
-  }
-  const registrador = mapa_escrita.address + index;
+  const indexId = mapa_escrita.fields.indexOf("Id");
+  const regId = mapa_escrita.address + indexId;
+  await client.writeRegister(regId, id);
 
-  console.log(`[DEBUG] Vai escrever ${config} (reg ${registrador}) = ${valor}`);
+  const indexCampo = mapa_escrita.fields.indexOf(config);
+  if (indexCampo === -1) {
+    throw new Error(`Configuração "${config}" não existe no ID ${id}!`);
+  }
+  const registrador = mapa_escrita.address + indexCampo;
   await client.writeRegister(registrador, valor);
 
-  // Leitura de verificação após escrita
   const leitura = await client.readHoldingRegisters(registrador, 1);
   console.log(
-    `[DEBUG] Valor lido após escrita ${config} (reg ${registrador}): ${leitura.data[0]}`
+    `[DEBUG] Valor lido após escrita em id=${id}.${config} (reg ${registrador}): ${leitura.data[0]}`
   );
   const fim = Date.now();
   console.log(
-    `[DEBUG] Escrita ${config} (${registrador}) valor=${valor} - Tempo: ${
+    `[DEBUG] Escrita em id=${id}.${config} (${registrador}) valor=${valor} - Tempo: ${
       fim - inicio
     }ms\n`
   );
 }
 
-console.log("Iniciando cliente Modulo Mestre...");
-setInterval(lerTodosCampos, config.tempo);
-
-process.on("SIGINT", () => {
-  console.log("\nDesconectando...");
-  client.close();
-  process.exit();
-});
-
 export default {
-  conectarModuloMestre,
   lerTodosCampos,
-  escreverDispositivo,
+  isConnected,
+  getAlimentadorEscrita,
+  setIpModuloMestre,
+  getHistoricoLeituras,
+  getUltimoDeCadaID,
+  selecionarAlimentador,
+  adicionarNaFila,
   lerAlimentador,
   lerErros,
   lerTemperaturaUmidade,
-  setIpModuloMestre,
+  conectarModuloMestre,
 };
+
+process.on("SIGINT", () => {
+  console.log("Encerrando servidor...");
+  if (client.isOpen) client.close();
+  process.exit();
+});
