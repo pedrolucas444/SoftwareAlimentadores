@@ -1,6 +1,5 @@
 import { WebSocketServer } from "ws";
-import {
-  moduloMestreControllerWS,
+import moduloMestreController, {
   statusControllerWS,
   ultimoPorIdControllerWS,
 } from "../controller/webSocketController.js";
@@ -12,7 +11,7 @@ export default function RouterWS(server) {
     const pathname = new URL(request.url, `http://${request.headers.host}`)
       .pathname;
 
-    if (pathname.startsWith("/alimentador")) {
+    if (pathname.startsWith("/gaveta")) {
       wss.handleUpgrade(request, socket, head, (ws) => {
         wss.emit("connection", ws, request);
       });
@@ -32,11 +31,11 @@ export default function RouterWS(server) {
   wss.on("connection", (ws, request) => {
     const pathname = new URL(request.url, `http://${request.headers.host}`)
       .pathname;
-    if (pathname.startsWith("/alimentador")) {
+    if (pathname.startsWith("/gaveta")) {
       const partes = pathname.split("/");
       const id = partes[2];
-      ws.send(`Conectado ao WebSocket do alimentador ${id || "todos"}`);
-      moduloMestreControllerWS(ws, id);
+      ws.send(`Conectado ao WebSocket da gaveta ${id || "todas"}`);
+      moduloMestreController(ws, id);
     }
   });
 }

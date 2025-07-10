@@ -1,21 +1,6 @@
 import moduloMestre from "../service/moduloMestre.js";
 
 class moduloMestreController {
-  static async getTodos(request, response) {
-    try {
-      const data = await moduloMestre.lerTodosCampos();
-      response.json({
-        success: true,
-        data,
-      });
-    } catch (err) {
-      response.status(500).json({
-        success: false,
-        error: err.message,
-      });
-    }
-  }
-
   static async getAlimentador(request, response) {
     try {
       const id = Number(request.params.id);
