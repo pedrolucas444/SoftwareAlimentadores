@@ -70,7 +70,7 @@ async function conectarModuloMestre() {
   }
 }
 
-function setIpModuloMestre(ip) {
+async function setIpModuloMestre(ip) {
   if (client.isOpen) {
     client.close(() => {
       console.log("Conexão Modbus fechada para troca de IP.");
@@ -98,7 +98,7 @@ async function lerTodosCampos() {
 
     return dadosFormatados;
   } catch (err) {
-    console.error("Erro geral:", err.message);
+    console.error("Erro de conexão", err.message);
   }
 }
 
@@ -159,17 +159,9 @@ let escrevendo = false;
 const filaEscrita = [];
 
 // Remove comandos antigos do mesmo tipo antes de adicionar um novo
-async function escreverDispositivo(dispositivo, config, valor) {
-  for (let i = filaEscrita.length - 1; i >= 0; i--) {
-    if (
-      filaEscrita[i].dispositivo === dispositivo &&
-      filaEscrita[i].config === config
-    ) {
-      filaEscrita.splice(i, 1);
-    }
-  }
+async function adicionarFila(id, config, valor) {
   return new Promise((resolve, reject) => {
-    filaEscrita.push({ dispositivo, config, valor, resolve, reject }); // insere no final
+    filaEscrita.push({ id, config, valor, resolve, reject });
     processarFilaEscrita();
   });
 }
@@ -232,7 +224,7 @@ process.on("SIGINT", () => {
 export default {
   conectarModuloMestre,
   lerTodosCampos,
-  escreverDispositivo,
+  adicionarFila,
   lerAlimentador,
   lerTemperaturaUmidade,
   setIpModuloMestre,

@@ -63,7 +63,7 @@ export function errosIdWS(ws, id) {
   ws.on("close", () => clearTimeout(interval));
 }
 
-export function monitorWS(ws, id) {
+export function   monitorWS(ws, id) {
   if (!id || isNaN(Number(id))) {
     ws.send(JSON.stringify({ erros: "ID do alimentador errado" }));
     ws.close();
