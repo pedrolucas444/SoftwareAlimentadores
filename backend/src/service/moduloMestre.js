@@ -103,25 +103,27 @@ async function lerTodosCampos() {
 }
 
 async function lerAlimentador(id) {
-  if (!client.isOpen) await conectarModuloMestre();
-  try {
-    const index = mapa_escrita.fields.indexOf("id");
-    const registrador = mapa_escrita.address + index + 7;
-    await client.writeRegister(registrador, id);
+  const pares = getUltimoCadaID();
+  const encontrado = pares.find(
+    ([chave, item]) => Number(item.alimentador?.id) === Number(id)
+  );
+  return encontrado ? encontrado[1] : null;
+}
 
-    const response = await client.readHoldingRegisters(
-      mapa_leitura.alimentador.address,
-      mapa_leitura.alimentador.fields.length
-    );
-    const dados = {};
-    mapa_leitura.alimentador.fields.forEach((campo, index) => {
-      dados[campo.trim()] = response.data[index];
-    });
-    return dados;
-  } catch (err) {
-    console.error("Erro ao ler alimentador:", err.message);
-    throw err;
-  }
+async function lerErrosAlimentador(id) {
+  const pares = getUltimoCadaID();
+  const encontrado = pares.find(
+    ([chave, item]) => Number(item.alimentador?.id) === Number(id)
+  );
+  return encontrado ? encontrado[1].erros?.[campo] : null;
+}
+
+async function lerTemperaturaUmidade(id) {
+  const pares = getUltimoCadaID();
+  const encontrado = pares.find(
+    ([chave, item]) => Number(item.alimentador?.id) === Number(id)
+  );
+  return encontrado ? encontrado[1].monitor : null;
 }
 
 let historicoLeituras = [];
@@ -149,42 +151,7 @@ function getUltimoCadaID() {
       ultimos[id] = item;
     }
   });
-  console.log(ultimos);
   return Object.entries(ultimos);
-}
-
-async function lerErros() {
-  try {
-    const response = await client.readHoldingRegisters(
-      mapa_leitura.erros.address,
-      mapa_leitura.erros.fields.length
-    );
-    const dados = {};
-    mapa_leitura.erros.fields.forEach((campo, index) => {
-      dados[campo.trim()] = response.data[index];
-    });
-    return dados;
-  } catch (err) {
-    console.error("Erro ao ler erros:", err.message);
-    throw err;
-  }
-}
-
-async function lerTemperaturaUmidade() {
-  try {
-    const response = await client.readHoldingRegisters(
-      mapa_leitura.monitor.address,
-      mapa_leitura.monitor.fields.length
-    );
-    const dados = {};
-    mapa_leitura.monitor.fields.forEach((campo, index) => {
-      dados[campo.trim()] = response.data[index];
-    });
-    return dados;
-  } catch (err) {
-    console.error("Erro ao ler monitor:", err.message);
-    throw err;
-  }
 }
 
 // Fila de escrita universal
@@ -267,9 +234,9 @@ export default {
   lerTodosCampos,
   escreverDispositivo,
   lerAlimentador,
-  lerErros,
   lerTemperaturaUmidade,
   setIpModuloMestre,
   getHistoricoLeituras,
   getUltimoCadaID,
+  lerErrosAlimentador,
 };
