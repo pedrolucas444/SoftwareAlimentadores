@@ -4,6 +4,6 @@ import moduloMestreController from "../controller/moduloMestreController.js";
 const router = Router();
 
 router.post("/ip", moduloMestreController.setIP);
-router.post("/alimentador/:id", moduloMestreController.setAlimentador);
+router.post("/alimentador", moduloMestreController.setAlimentador);
 
 export default router;
