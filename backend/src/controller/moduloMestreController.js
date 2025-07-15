@@ -38,6 +38,21 @@ class moduloMestreController {
       });
     }
   }
+
+  static async getIP(request, response) {
+    try {
+      const resultado = await moduloMestre.getIpModuloMestre();
+      response.status(200).json({
+        messagem: "Sucesso!",
+        data: resultado,
+      });
+    } catch {
+      response.status(400).json({
+        messagem: "Erro!",
+        data: resultado,
+      });
+    }
+  }
 }
 
 export default moduloMestreController;

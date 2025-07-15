@@ -70,6 +70,10 @@ async function conectarModuloMestre() {
   }
 }
 
+async function getIpModuloMestre() {
+  return config.ip;
+}
+
 async function setIpModuloMestre(ip) {
   if (client.isOpen) {
     client.close(() => {
@@ -231,4 +235,5 @@ export default {
   getHistoricoLeituras,
   getUltimoCadaID,
   lerErrosAlimentador,
+  getIpModuloMestre,
 };
