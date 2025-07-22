@@ -1,11 +1,11 @@
-import { Card, CardContent } from "../components/ui/card";
+import { Card, CardContent } from "../../components/ui/card";
 import { Tooltip } from "react-tooltip";
 import "react-tooltip/dist/react-tooltip.css";
-import planta from "../assets/plantaArq.png";
-import alimentador from "../assets/controlFeed.png";
-import logoWBM from "../assets/LOGO-OFC-WBM-2.0.png";
-import saaeItabirito from "../assets/logo itabirito2.png";
-import IotControl from "../assets/Iot_Control_preta.png";
+import planta from "../../assets/plantaArq.png";
+import alimentador from "../../assets/controlFeed.png";
+import logoWBM from "../../assets/LOGO-OFC-WBM-2.0.png";
+import saaeItabirito from "../../assets/logo itabirito2.png";
+import IotControl from "../../assets/Iot_Control_preta.png";
 import { useEffect, useState } from "react";
 // import ContadorSaidas from "../../components/ContadorSaidas"; // Importe o componente do contador
 
