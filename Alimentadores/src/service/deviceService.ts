@@ -1,20 +1,20 @@
 const BASE_URL = "http://localhost:3000";
 
 const EndPoints = {
-  gaveta: "/moduloMestre/gaveta",
-  gaveta_escrita: "/moduloMestre/gaveta-escrita",
-  gaveta_download_manual: "/moduloMestre/exportar/gaveta_manual",
-  gaveta_download_automatico: "/moduloMestre/exportar/gaveta_automatico",
+  alimentador: "/moduloMestre/alimentador",
+  alimentador_escrita: "/moduloMestre/alimentador-escrita",
+  alimentador_download_manual: "/moduloMestre/exportar/alimentador_manual",
+  alimentador_download_automatico: "/moduloMestre/exportar/alimentador_automatico",
   alimentador: "/moduloMestre/alimentador",
   alimentador_escrita: "/moduloMestre/alimentador-escrita",
   historicoID: "/moduloMestre/ultimo-por-id",
   Ip: "/moduloMestre/ip",
-  resgistraPosicao: "/moduloMestre/registraPosicao",
+  resgistraTemperatura: "/moduloMestre/registraTemperatura",
 };
 
-export async function EnviarModoGaveta(modo: number, id: number) {
+export async function EnviarModoAlimentador(modo: number, id: number) {
   try {
-    await fetch(`${BASE_URL}${EndPoints.gaveta}/${id}`, {
+    await fetch(`${BASE_URL}${EndPoints.alimentador}/${id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ modo }),
@@ -23,21 +23,21 @@ export async function EnviarModoGaveta(modo: number, id: number) {
     console.error("Erro ao enviar modo", err);
   }
 }
-export async function PararValvulaGaveta(id: number) {
+export async function PararAlimentador(id: number) {
   try {
-    await fetch(`${BASE_URL}${EndPoints.gaveta}/${id}`, {
+    await fetch(`${BASE_URL}${EndPoints.alimentador}/${id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ setPointManual: 150, modo: 2 }),
     });
   } catch (err) {
-    console.error("Erro ao enviar a parada gaveta", err);
+    console.error("Erro ao enviar a parada alimentador", err);
   }
 }
-export async function GavetaEscrita(id: number) {
+export async function AlimentadorEscrita(id: number) {
   try {
     const response = await fetch(
-      `${BASE_URL}${EndPoints.gaveta_escrita}/${id}`,
+      `${BASE_URL}${EndPoints.alimentador_escrita}/${id}`,
       {
         method: "GET",
         headers: { "Content-Type": "application/json" },
@@ -46,13 +46,13 @@ export async function GavetaEscrita(id: number) {
 
     return await response.json();
   } catch (err) {
-    console.error("Erro de conexão escrita gaveta", err);
+    console.error("Erro de conexão escrita alimentador", err);
   }
 }
 
-export async function AtualizaGaveta(id: number, modo: number) {
+export async function AtualizaAlimentador(id: number, modo: number) {
   try {
-    await fetch(`http://localhost:3000/moduloMestre/gaveta/${id}`, {
+    await fetch(`http://localhost:3000/moduloMestre/alimentador/${id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ Modo: modo }),
@@ -62,12 +62,12 @@ export async function AtualizaGaveta(id: number, modo: number) {
   }
 }
 
-export async function GavetaAutomatico(
+export async function AlimentadorAutomatico(
   id: number,
   formData: Record<string, string | number>
 ) {
   try {
-    await fetch(`http://localhost:3000/moduloMestre/gaveta/${id}`, {
+    await fetch(`http://localhost:3000/moduloMestre/alimentador/${id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),
@@ -82,7 +82,7 @@ export async function EnviarSetpointDispositivo(
   { setPointManual, modo }: { setPointManual: number; modo: number }
 ) {
   try {
-    await fetch(`${BASE_URL}${EndPoints.gaveta}/${id}`, {
+    await fetch(`${BASE_URL}${EndPoints.alimentador}/${id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ setPointManual: setPointManual, modo }),
@@ -116,19 +116,19 @@ export async function ultimoID() {
     console.log("Erro ao trazer dados por ID ", err);
   }
 }
-export async function registraPosicao(
+export async function registraTemperatura(
   id: number,
-  posicao: number,
+  temperatura: number,
   modo: number
 ) {
   try {
-    await fetch(`${BASE_URL}${EndPoints.resgistraPosicao}`, {
+    await fetch(`${BASE_URL}${EndPoints.resgistraTemperatura}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, posicao, modo }),
+      body: JSON.stringify({ id, temperatura, modo }),
     });
   } catch {
-    console.log("Erro ao enviar nova posicao");
+    console.log("Erro ao enviar nova temperatura");
   }
 }
 
@@ -173,17 +173,3 @@ export async function AlimentadorEscrita(id: number) {
   }
 }
 
-export async function AlimentadorAutomatico(
-  id: number,
-  formData: Record<string, string | number>
-) {
-  try {
-    await fetch(`${BASE_URL}${EndPoints.alimentador}/${id}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
-    });
-  } catch (err) {
-    console.error("Erro ao Enviar Config Automática Alimentador", err);
-  }
-}

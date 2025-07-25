@@ -2,14 +2,14 @@ import React, { useState, useEffect } from "react";
 import BotaoFechar from "./BotaoFechar";
 import { Button } from "./ui/button";
 import { useParams } from "react-router-dom";
-import { GavetaAutomatico } from "../service/deviceService";
+import { AlimentadorAutomatico } from "../service/deviceService";
 
 export function SeletorModo() {
   const { id } = useParams();
 
   const setModo = async (modo: number) => {
     try {
-      await fetch(`http://localhost:3000/moduloMestre/gaveta/${id}`, {
+      await fetch(`http://localhost:3000/moduloMestre/alimentador/${id}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ modo }),
@@ -42,7 +42,7 @@ export type CampoConfiguracao = {
 type ModalConfiguracaoProps = {
   closeModal: (open: boolean) => void;
   campos: CampoConfiguracao[];
-  dispositivo: "gaveta";
+  dispositivo: "alimentador";
   modo: number;
   onSetPointEnviado?: (valor: number) => void;
   atualizarRegistrosEscrita?: (data: Record<string, any>) => void;
@@ -56,12 +56,12 @@ const ModalConfiguracao: React.FC<ModalConfiguracaoProps> = ({
   modo,
 }) => {
   const [formData, setFormData] = useState<Record<string, string>>(() => {
-  const inicial: Record<string, string> = {};
-  campos.forEach((campo) => {
-    inicial[campo.id] = "";
+    const inicial: Record<string, string> = {};
+    campos.forEach((campo) => {
+      inicial[campo.id] = "";
+    });
+    return inicial;
   });
-  return inicial;
-});
 
 
 
@@ -81,11 +81,11 @@ const ModalConfiguracao: React.FC<ModalConfiguracaoProps> = ({
   };
 
   const handleInputChange = (id: string, value: string | number) => {
-  setFormData((prev) => ({
-    ...prev,
-    [id]: value.toString(), // ✅ converte para string
-  }));
-};
+    setFormData((prev) => ({
+      ...prev,
+      [id]: value.toString(), // ✅ converte para string
+    }));
+  };
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -114,7 +114,7 @@ const ModalConfiguracao: React.FC<ModalConfiguracaoProps> = ({
 
     try {
       if (id) {
-        await GavetaAutomatico(Number(id), { ...formData, modo });
+        await AlimentadorAutomatico(Number(id), { ...formData, modo });
         setMensagem({
           texto: "Configuração enviada com sucesso!",
           tipo: "sucesso",
@@ -139,11 +139,10 @@ const ModalConfiguracao: React.FC<ModalConfiguracaoProps> = ({
 
         {/* Inputs */}
         <form
-          className={`mt-6 text-black ${
-            usarGridDuasColunas
+          className={`mt-6 text-black ${usarGridDuasColunas
               ? "grid grid-cols-2 gap-4"
               : "flex flex-col gap-4"
-          }`}
+            }`}
           onSubmit={handleSubmit}
         >
           {campos.map((campo) => (
@@ -175,9 +174,8 @@ const ModalConfiguracao: React.FC<ModalConfiguracaoProps> = ({
         {/* Mensagem de sucesso/erro */}
         {mensagem && (
           <div
-            className={`mt-4 text-center font-bold ${
-              mensagem.tipo === "sucesso" ? "text-green-600" : "text-red-600"
-            }`}
+            className={`mt-4 text-center font-bold ${mensagem.tipo === "sucesso" ? "text-green-600" : "text-red-600"
+              }`}
           >
             {mensagem.texto}
           </div>

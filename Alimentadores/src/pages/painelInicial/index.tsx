@@ -60,7 +60,7 @@ export default function Painel() {
                     <div className="absolute bg-white bg-opacity-90 rounded-2xl shadow p-4 bottom-70 right-280 h-48 flex flex-col items-center min-w-xs min-h-[250px]">
                       <div className="w-full flex flex-col items-center mb-2">
                         <span className="text-black text-lg font-bold flex items-center gap-2">
-                          VÁLVULA 1
+                          ALIMENTADOR 1
                           {Number(dados?.erro) > 0 && (
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -103,8 +103,8 @@ export default function Painel() {
                                 {dados?.modo === 1
                                   ? "Automático"
                                   : dados?.modo === 2
-                                  ? "Manual"
-                                  : "-"}
+                                    ? "Manual"
+                                    : "-"}
                               </div>
                             </td>
                           </tr>
@@ -150,7 +150,7 @@ export default function Painel() {
                     </div>
                     <button
                       className="absolute cursor-pointer bottom-70 left-22"
-                      onClick={() => (window.location.href = "/gaveta/1")}
+                      onClick={() => (window.location.href = "/alimentador/1")}
                       data-tooltip-id="equipamento-1"
                       data-tooltip-content="ID: Equipamento 1"
                     >
@@ -162,12 +162,12 @@ export default function Painel() {
             </Card>
           </div>
         </div>
-        
+
         {/* Contador no canto inferior direito */}
         {/* <div className="fixed bottom-4 right-4 z-50">
           <ContadorSaidas />
         </div> */}
-        
+
         <Tooltip id="equipamento-1" />
       </div>
     </>
