@@ -3,8 +3,8 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { DataProvider } from "./Context/DataContext";
 import ErrorBoundary from "./components/ErrorBoundary";
 
-const Painel = lazy(() => import("./pages/painelInicial/index"));
-const AlimentadorPage = lazy(() => import("./pages/alimentadorPage/index"));
+const Painel = lazy(() => import("./pages/painelInicial"));
+const Alimentador = lazy(() => import("./pages/alimentadorPage"));
 
 const router = createBrowserRouter([
   {
@@ -13,11 +13,8 @@ const router = createBrowserRouter([
   },
   {
     path: "/alimentador/:id",
-    element: <AlimentadorPage />,
+    element: <Alimentador />,
   },
-  // { path: "/gaveta/:id",
-  //   element: <ValvulaGaveta />,
-  // },
 ]);
 
 function App() {

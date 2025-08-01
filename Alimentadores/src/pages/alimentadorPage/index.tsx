@@ -26,6 +26,7 @@ import useModoStore from "../../store/useModoStore";
 import { useAlimentadorData } from "../../hook/HookAlimentador";
 import { PararAlimentador, EnviarModoAlimentador, } from "../../service/deviceService";
 import ContadorSaidas from "../../components/ContadorSaidas";
+import GraficoQuantidadeRacao from "./GraficoQuantidadeRacao";
 
 const erros = [
   { titulo: "ERRO 0: SEM ERRO", detalhe: "Sem erro" },
@@ -99,7 +100,7 @@ export default function Alimentador() {
     horaLiga: Alimentador?.horaLiga ?? 0,
     horaDesliga: Alimentador?.horaDesliga ?? 0,
     setPoint: Alimentador?.dosePorCiclo ?? 0,
-    tempoCiclo: Alimentador?.duracaoCiclo ?? 0,
+    tempoCiclo: Alimentador?.quantidade ?? 0,
   };
 
   // Agora passando o id para o backend
@@ -285,6 +286,14 @@ export default function Alimentador() {
             </Card>
             <Card className="flex-1">
               <CardContent className="pb-4 pt-2 px-10 flex flex-col items-center">
+                <GraficoQuantidadeRacao />
+              </CardContent>
+            </Card>
+            
+          </div>
+          <div className="flex justify-center mt-18">
+            <Card className="w-1/2">
+              <CardContent className="pb-4 pt-2 px-10 flex flex-col items-center">
                 <GraficoErrosAlimentador
                   mostrarTabelaErros={mostrarTabelaErros}
                   setMostrarTabelaErros={setMostrarTabelaErros}
@@ -292,7 +301,6 @@ export default function Alimentador() {
               </CardContent>
             </Card>
           </div>
-
           {mostrarTabelaErros && (
             <div className="mb-20">
               <TabelaDeErros tituloTabela="Erros da Válvula" erros={erros} />

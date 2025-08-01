@@ -1,99 +1,56 @@
-import { useEffect, useState, useRef } from "react";
+import { useState } from "react";
 import { Doughnut } from "react-chartjs-2";
-import { useParams } from "react-router-dom";
-import { registraTemperatura } from "../../service/deviceService";
+import type { ScriptableContext } from "chart.js";
 
-const optionsGauge = {
-    aspectRatio: 2,
-    circumference: 180,
-    rotation: -90,
-    plugins: {
-        legend: { display: false },
-        tooltip: { enabled: true },
-        datalabels: { display: false },
+
+const COLORS: string[] = [
+  "rgb(140, 214, 16)",
+  "rgb(239, 198, 0)",
+  "rgb(231, 24, 49)",
+];
+
+function index(perc: number): number {
+  return perc < 24 ? 0 : perc < 30 ? 1 : 2;
+}
+
+const optionsDoughnut = {
+  aspectRatio: 2,
+  circumference: 180,
+  rotation: -90,
+  plugins: {
+    legend: { display: false },
+    tooltip: { enabled: true },
+    datalabels: {
+      display: false,
     },
-};
-
-type TemperaturaData = {
-    id: number;
-    temperatura: number;
-    modo: number;
+  },
 };
 
 export default function GraficoTemperatura() {
-    const { id } = useParams();
-    const [temperatura, setTemperatura] = useState<{
-        labels: string[];
-        datasets: { data: number[]; backgroundColor: string[] }[];
-    } | null>(null);
-    const wsRef = useRef<WebSocket | null>(null);
-    const ultimaTemperaturaEnviada = useRef<number | null>(null);
-    const [modo, setModo] = useState<number | null>(null);
+  // Dados estáticos fictícios
+  const temperaturaAtual = 26; // Temperatura fixa em 26°C
+  const temperaturaMaxima = 35; // Temperatura máxima para o gráfico
+  
+  const [temperatura] = useState({
+    labels: ["Temperatura Atual"],
+    datasets: [
+      {
+        data: [temperaturaAtual, temperaturaMaxima - temperaturaAtual],
+        backgroundColor: (ctx: ScriptableContext<"doughnut">) => {
+          if (ctx.dataIndex === 1) return "#EAEAEA";
+          return COLORS[index(temperaturaAtual)];
+        },
+      },
+    ],
+  });
 
-    useEffect(() => {
-        let ws: WebSocket;
-        let reconnectTimeout: number;
-
-        function connect() {
-            ws = new WebSocket("ws://localhost:3000/ultimo-por-id");
-            wsRef.current = ws;
-
-            ws.onmessage = (event) => {
-                try {
-                    const data = JSON.parse(event.data);
-                    const dado = data.data?.find(
-                        (item: TemperaturaData) => String(item.id) === String(id)
-                    );
-                    if (dado && typeof dado.temperatura === "number") {
-                        const temperaturaCorrigida = Math.max(0, Math.min(100, dado.temperatura));
-                        setTemperatura({
-                            labels: ["Temperatura Atual"],
-                            datasets: [
-                                {
-                                    data: [temperaturaCorrigida, 100 - temperaturaCorrigida],
-                                    backgroundColor: ["#00C49F", "#EAEAEA"],
-                                },
-                            ],
-                        });
-                        setModo(dado.modo ?? null);
-                    }
-                } catch {
-                    // Em caso de erro, pode exibir mensagem de erro, mas não zera o estado
-                }
-            };
-
-            ws.onerror = () => {
-                ws.close();
-            };
-
-            ws.onclose = () => {
-                reconnectTimeout = window.setTimeout(connect, 2000); // reconecta após 2s
-            };
-        }
-
-        connect();
-
-        return () => {
-            clearTimeout(reconnectTimeout);
-            if (ws) ws.close();
-        };
-    }, [id]);
-
-    return (
-        <div className="GraficoPosicao">
-            <h2 className="font-bold text-lg mb-2 text-center">TEMPERATURA DO ALIMENTADOR</h2>
-            <div className="w-80 h-52 flex flex-col items-center justify-center">
-                {temperatura ? (
-                    <>
-                        <Doughnut className="mt-18" data={temperatura} options={optionsGauge} />
-                        <span className="font-bold text-4xl -mt-10">
-                            {temperatura.datasets[0].data[0]}%
-                        </span>
-                    </>
-                ) : (
-                    <span className="text-gray-500">Carregando dados...</span>
-                )}
-            </div>
-        </div>
-    );
+  return (
+    <div className="GraficoTemperatura">
+      <h1 className="font-bold text-lg text-center">Temperatura 1</h1>
+      <div className="w-80 h-52 flex flex-col items-center justify-center mt-10">
+        <Doughnut className="mt-1" data={temperatura} options={optionsDoughnut} />
+        <span className="font-bold text-4xl -mt-10">{temperaturaAtual}°C</span>
+      </div>
+    </div>
+  );
 }

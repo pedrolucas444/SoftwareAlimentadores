@@ -1,17 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 export interface AlimentadorData {
-  id: number;
-  horaLiga: number;
-  horaDesliga: number;
-  dosePorCiclo: number;
-  duracaoCiclo: number;
-  temperatura: number;
-  quantidade: number;
-  quantidadeRestante: number;
-  modo: number;
-  ciclos: number;
-  erros?: any[];
+  ciclos?: number;
+  modo?: number;
+  horaLiga?: number;
+  horaDesliga?: number;
+  setPoint?: number; // gramas
+  dosePorCiclo?: number;
+  temperatura?: number;
+  quantidade?: number;
+  quantidadeRestante?: number;
+  setPointManual?: number; // gramas
+  especie?: string;
+  idade?: number;
+  quantidadePeixes?: number;
+  tipoRacao?: string ;
 }
 
 export const useAlimentadorData = () => {
@@ -29,11 +32,9 @@ export const useAlimentadorData = () => {
       
       // Mock data por enquanto
       const mockData: AlimentadorData = {
-        id,
         horaLiga: 8,
         horaDesliga: 18,
         dosePorCiclo: 2,
-        duracaoCiclo: 15,
         temperatura: 30,
         quantidade: 2040,
         quantidadeRestante: 960,

@@ -1,17 +1,13 @@
-import { useState } from 'react';
+import { create } from "zustand";
 
 interface ModoStore {
   setpointManualAtivo: boolean;
   setSetpointManualAtivo: (ativo: boolean) => void;
 }
 
-const useModoStore = (): ModoStore => {
-  const [setpointManualAtivo, setSetpointManualAtivo] = useState(false);
-
-  return {
-    setpointManualAtivo,
-    setSetpointManualAtivo,
-  };
-};
+const useModoStore = create<ModoStore>((set) => ({
+  setpointManualAtivo: false,
+  setSetpointManualAtivo: (ativo: boolean) => set({ setpointManualAtivo: ativo }),
+}));
 
 export default useModoStore;
