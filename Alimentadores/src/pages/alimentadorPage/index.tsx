@@ -212,17 +212,6 @@ export default function Alimentador() {
               </div>
               {erroID && <span className="text-red-600 text-sm">{erroID}</span>}
             </div>
-            <Button
-              className="w-full"
-              onClick={() => {
-                if (!Alimentador) return;
-                if (setpointManualAtivo) setModalSetpointManualAberto(true);
-                else setModalAberto(true);
-              }}
-              disabled={!Alimentador}
-            >
-              Configurar
-            </Button>
             <div className="flex justify-center mt-4">
               <Switch
                 checked={setpointManualAtivo}
