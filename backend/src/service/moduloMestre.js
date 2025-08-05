@@ -10,50 +10,31 @@ const config = {
 
 const mapa_leitura = {
   alimentador: {
-    address: 7,
+    address: 0,
     fields: [
       "id",
       "horaLiga",
       "horaDesliga",
-      "setPoint",
-      "tempoCiclo",
-      "temperatura",
-      "erro",
-      "posicao",
-      "hora",
-      "minuto",
-      "ciclos",
-      "quantReservatorio",
+      "temploCiclo",
+      "quantCiclo",
+      "tipoRacao",
+      "modo",
+      "setPointManual",
     ],
-  },
-  erros: {
-    address: 19,
-    fields: [
-      "qtdErro1",
-      "qtdErro2",
-      "qtdErro3",
-      "qtdErro4",
-      "qtdErro5",
-      "qtdErro6",
-      "qtdErro7",
-      "comErro1",
-      "comErro2",
-      "comErro3",
-      "comErro4",
-      "comErro5",
-      "comErro6",
-      "comErro7",
-    ],
-  },
-  monitor: {
-    address: 33,
-    fields: ["umidade", "temperatura"],
   },
 };
 
 const mapa_escrita = {
-  address: 0,
-  fields: ["id", "horaLiga", "horaDesliga", "setpoint", "tempoCiclo"],
+  address: 12,
+  fields: [
+    "id",
+    "horaLiga",
+    "horaDesliga",
+    "temploCiclo",
+    "quantCiclo",
+    "modo",
+    "setPointManual",
+  ],
 };
 
 async function conectarModuloMestre() {
@@ -106,32 +87,7 @@ async function lerTodosCampos() {
   }
 }
 
-async function lerAlimentador(id) {
-  const pares = getUltimoCadaID();
-  const encontrado = pares.find(
-    ([chave, item]) => Number(item.alimentador?.id) === Number(id)
-  );
-  return encontrado ? encontrado[1] : null;
-}
-
-async function lerErrosAlimentador(id) {
-  const pares = getUltimoCadaID();
-  const encontrado = pares.find(
-    ([chave, item]) => Number(item.alimentador?.id) === Number(id)
-  );
-  return encontrado ? encontrado[1].erros?.[campo] : null;
-}
-
-async function lerTemperaturaUmidade(id) {
-  const pares = getUltimoCadaID();
-  const encontrado = pares.find(
-    ([chave, item]) => Number(item.alimentador?.id) === Number(id)
-  );
-  return encontrado ? encontrado[1].monitor : null;
-}
-
 let historicoLeituras = [];
-
 async function atualizarHistorico() {
   try {
     const dados = await lerTodosCampos();
