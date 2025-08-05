@@ -11,6 +11,7 @@ export interface AlimentadorData {
   quantidade?: number;
   quantidadeRestante?: number;
   setPointManual?: number; // gramas
+  tempoCiclo?: number; // minutos
   especie?: string;
   idade?: number;
   quantidadePeixes?: number;
@@ -35,6 +36,7 @@ export const useAlimentadorData = () => {
         horaLiga: 8,
         horaDesliga: 18,
         dosePorCiclo: 2,
+        tempoCiclo: 30,
         temperatura: 30,
         quantidade: 2040,
         quantidadeRestante: 960,

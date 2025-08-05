@@ -16,12 +16,15 @@ export default function ConfiguracoesAlimentador() {
   const [peixesRetirados, setPeixesRetirados] = useState("");
   const [pesoRetirado, setPesoRetirado] = useState("");
   const [tipoRetirada, setTipoRetirada] = useState<"quantidade" | "peso">("quantidade");
+  const [motivoRetirada, setMotivoRetirada] = useState("");
+  const [observacoes, setObservacoes] = useState("");
   
   // Estados para o formulário de novo ciclo
   const [dadosNovoCiclo, setDadosNovoCiclo] = useState({
     horaLiga: "",
     horaDesliga: "",
     dosePorCiclo: "",
+    tempoCiclo: "",
     tipoRacao: "",
     quantidadePeixes: "",
     especie: ""
@@ -60,18 +63,25 @@ export default function ConfiguracoesAlimentador() {
   const handleFinalizarCiclo = () => {
     const quantidadeRetirada = parseInt(peixesRetirados);
     const peso = parseFloat(pesoRetirado);
-    
+
+    let msg = "";
     if (tipoRetirada === "quantidade" && quantidadeRetirada > 0) {
-      alert(`Ciclo finalizado! Peixes retirados: ${quantidadeRetirada}`);
+      msg = `Ciclo finalizado! Peixes retirados: ${quantidadeRetirada}`;
     } else if (tipoRetirada === "peso" && peso > 0) {
-      alert(`Ciclo finalizado! Peso retirado: ${peso}kg`);
+      msg = `Ciclo finalizado! Peso retirado: ${peso}kg`;
     }
-    
+    msg += `\nMotivo: ${motivoRetirada || "Não informado"}`;
+    if (observacoes.trim()) msg += `\nObservações: ${observacoes}`;
+
+    alert(msg);
+
     // Limpar dados e finalizar ciclo
     setAlimentadorData(null);
     setCicloAtivo(false);
     setPeixesRetirados("");
     setPesoRetirado("");
+    setMotivoRetirada("");
+    setObservacoes("");
     setMostrarFinalizarCiclo(false);
   };
 
@@ -80,7 +90,7 @@ export default function ConfiguracoesAlimentador() {
       horaLiga: parseInt(dadosNovoCiclo.horaLiga),
       horaDesliga: parseInt(dadosNovoCiclo.horaDesliga),
       dosePorCiclo: parseInt(dadosNovoCiclo.dosePorCiclo),
-      setPoint: parseInt(dadosNovoCiclo.setPoint),
+      tempoCiclo: parseInt(dadosNovoCiclo.tempoCiclo),
       tipoRacao: dadosNovoCiclo.tipoRacao,
       quantidadePeixes: parseInt(dadosNovoCiclo.quantidadePeixes),
       especie: dadosNovoCiclo.especie
@@ -95,7 +105,7 @@ export default function ConfiguracoesAlimentador() {
       horaLiga: "",
       horaDesliga: "",
       dosePorCiclo: "",
-      setPoint: "",
+      tempoCiclo: "",
       tipoRacao: "",
       quantidadePeixes: "",
       especie: ""
@@ -108,7 +118,7 @@ export default function ConfiguracoesAlimentador() {
       horaLiga: "",
       horaDesliga: "",
       dosePorCiclo: "",
-      setPoint: "",
+      tempoCiclo: "",
       tipoRacao: "",
       quantidadePeixes: "",
       especie: ""
@@ -120,7 +130,8 @@ export default function ConfiguracoesAlimentador() {
            parseInt(dadosNovoCiclo.horaLiga) >= 0 && parseInt(dadosNovoCiclo.horaLiga) <= 23 &&
            parseInt(dadosNovoCiclo.horaDesliga) >= 0 && parseInt(dadosNovoCiclo.horaDesliga) <= 23 &&
            parseInt(dadosNovoCiclo.dosePorCiclo) > 0 &&
-           parseInt(dadosNovoCiclo.quantidadePeixes) > 0;
+           parseInt(dadosNovoCiclo.quantidadePeixes) > 0 &&
+           parseInt(dadosNovoCiclo.tempoCiclo) > 5;
   };
 
   // Se não há ciclo ativo, mostra apenas o botão para iniciar
@@ -199,13 +210,13 @@ export default function ConfiguracoesAlimentador() {
                   </div>
                   <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Quantidade de Peixes:
+                    Tempo de Ciclo:
                   </label>
                   <input
                     type="number"
                     min="1"
-                    value={dadosNovoCiclo.quantidadePeixes}
-                    onChange={(e) => setDadosNovoCiclo(prev => ({...prev, quantidadePeixes: e.target.value}))}
+                    value={dadosNovoCiclo.tempoCiclo}
+                    onChange={(e) => setDadosNovoCiclo(prev => ({...prev, tempoCiclo: e.target.value}))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-black"
                     placeholder="Ex: 150"
                   />
@@ -222,6 +233,20 @@ export default function ConfiguracoesAlimentador() {
                     onChange={(e) => setDadosNovoCiclo(prev => ({...prev, tipoRacao: e.target.value}))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-black"
                     placeholder="Ex: Ração Premium"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Quantidade de Peixes:
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={dadosNovoCiclo.quantidadePeixes}
+                    onChange={(e) => setDadosNovoCiclo(prev => ({...prev, quantidadePeixes: e.target.value}))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-black"
+                    placeholder="Ex: 150"
                   />
                 </div>
 
@@ -244,6 +269,7 @@ export default function ConfiguracoesAlimentador() {
                   >
                     Cancelar
                   </Button>
+                  
                   <Button
                     onClick={handleIniciarCiclo}
                     className="bg-green-600 hover:bg-green-700"
@@ -275,8 +301,8 @@ export default function ConfiguracoesAlimentador() {
               <InfoItem label="HORA LIGA" value={alimentadorData?.horaLiga} />
               <InfoItem label="HORA DESLIGA" value={alimentadorData?.horaDesliga} />
               <InfoItem label="DOSE POR CICLO" value={alimentadorData?.dosePorCiclo} />
-              <InfoItem label="SETPOINT" value={alimentadorData?.setPoint} />
-              
+              <InfoItem label="TEMPO POR CICLO" value={alimentadorData?.tempoCiclo} />
+
               {/* Tipo de Ração Editável */}
               <div className="space-y-1 text-center">
                 <label className="block font-medium">TIPO RAÇÃO</label>
@@ -468,6 +494,32 @@ export default function ConfiguracoesAlimentador() {
                     </div>
                   )}
 
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Motivo da retirada:
+                    </label>
+                    <input
+                      type="text"
+                      value={motivoRetirada}
+                      onChange={(e) => setMotivoRetirada(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-black"
+                      placeholder="Ex: Abate, Transferência, etc."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Observações (opcional):
+                    </label>
+                    <textarea
+                      value={observacoes}
+                      onChange={(e) => setObservacoes(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-black"
+                      placeholder="Digite observações adicionais"
+                      rows={2}
+                    />
+                  </div>
+
                   <div className="flex gap-3 justify-end">
                     <Button
                       variant="outline"
@@ -475,6 +527,8 @@ export default function ConfiguracoesAlimentador() {
                         setMostrarFinalizarCiclo(false);
                         setPeixesRetirados("");
                         setPesoRetirado("");
+                        setMotivoRetirada("");
+                        setObservacoes("");
                       }}
                     >
                       Cancelar
@@ -484,7 +538,8 @@ export default function ConfiguracoesAlimentador() {
                       className="bg-blue-600 hover:bg-blue-700"
                       disabled={
                         (tipoRetirada === "quantidade" && (!peixesRetirados || parseInt(peixesRetirados) <= 0)) ||
-                        (tipoRetirada === "peso" && (!pesoRetirado || parseFloat(pesoRetirado) <= 0))
+                        (tipoRetirada === "peso" && (!pesoRetirado || parseFloat(pesoRetirado) <= 0)) ||
+                        !motivoRetirada.trim()
                       }
                     >
                       Finalizar
