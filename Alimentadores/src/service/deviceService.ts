@@ -5,8 +5,7 @@ const EndPoints = {
   alimentador_escrita: "/moduloMestre/alimentador-escrita",
   alimentador_download_manual: "/moduloMestre/exportar/alimentador_manual",
   alimentador_download_automatico: "/moduloMestre/exportar/alimentador_automatico",
-  alimentador: "/moduloMestre/alimentador",
-  alimentador_escrita: "/moduloMestre/alimentador-escrita",
+
   historicoID: "/moduloMestre/ultimo-por-id",
   Ip: "/moduloMestre/ip",
   resgistraTemperatura: "/moduloMestre/registraTemperatura",
@@ -28,7 +27,7 @@ export async function PararAlimentador(id: number) {
     await fetch(`${BASE_URL}${EndPoints.alimentador}/${id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ setPointManual: 150, modo: 2 }),
+      body: JSON.stringify({ setPointManual: 199, modo: 2 }),
     });
   } catch (err) {
     console.error("Erro ao enviar a parada alimentador", err);
