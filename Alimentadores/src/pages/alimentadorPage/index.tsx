@@ -7,7 +7,7 @@ import { Button } from "../../components/ui/button";
 import { Switch } from "../../components/ui/switch";
 import alimentador from "../../assets/controlFeed.png";
 import IotControl from "../../assets/IOT_CONTROL_BRANCA.png";
-import ControlFeed from "../../assets/ControlFeed.png";
+import ControlFeed from "../../assets/LOGO_CONTROLFEED.png";
 
 // grandes componentes
 import GraficoTemperatura from "./GraficoTemperatura";
@@ -253,7 +253,7 @@ export default function Alimentador() {
           <div className="h-33 flex items-center">
             <img
               src={ControlFeed}
-              alt="Control Ar"
+              alt="Control Feede"
               className="max-h-full w-auto object-contain mt-11"
             />
           </div>
