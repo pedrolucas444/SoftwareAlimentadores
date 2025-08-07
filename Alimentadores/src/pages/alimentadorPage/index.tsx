@@ -7,7 +7,7 @@ import { Button } from "../../components/ui/button";
 import { Switch } from "../../components/ui/switch";
 import alimentador from "../../assets/controlFeed.png";
 import IotControl from "../../assets/IOT_CONTROL_BRANCA.png";
-import ControlFeed from "../../assets/LOGO_CONTROLFEED.png";
+import ControlFeed from "../../assets/LOGO_CONTROLFEED_BRANCA_E_VERDE.png";
 
 // grandes componentes
 import GraficoTemperatura from "./GraficoTemperatura";
