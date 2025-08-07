@@ -250,11 +250,11 @@ export default function Alimentador() {
 
       <div className="min-h-screen bg-primary text-white p-4">
         <div className="flex justify-center items-center mt-5 gap-10 w-full">
-          <div className="h-33 flex items-center">
+          <div className="h-25 flex items-center">
             <img
               src={ControlFeed}
-              alt="Control Feede"
-              className="max-h-full w-auto object-contain mt-11"
+              alt="Control Feed"
+              className="max-h-full w-auto object-contain "
             />
           </div>
           <div className="h-24 flex items-center">
