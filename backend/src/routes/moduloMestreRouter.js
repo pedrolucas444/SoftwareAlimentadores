@@ -2,7 +2,7 @@ import { Router } from "express";
 import moduloMestreController from "../controller/moduloMestreController.js";
 
 const router = Router();
-
+//enviar ip
 router.post("/ip", moduloMestreController.setIP);
 //teste
 router.get("/ip", moduloMestreController.getIP);

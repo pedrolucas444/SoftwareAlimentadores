@@ -2,7 +2,7 @@ import moduloMestre from "../service/moduloMestre.js";
 
 export default function moduloMestreController(ws, id) {
   if (!id || isNaN(Number(id))) {
-    ws.send(JSON.stringify({ error: "ID do alimentador inválido!" }));
+    ws.send(JSON.stringify({ error: "ID do alimentador não reconhecido!" }));
     ws.close();
     return;
   }
@@ -11,7 +11,7 @@ export default function moduloMestreController(ws, id) {
       const alimentador = await moduloMestre.lerAlimentador(Number(id));
       ws.send(JSON.stringify({ data: alimentador }));
     } catch (err) {
-      ws.send(JSON.stringify({ error: "Erro ao buscar dados do alimentador" }));
+      ws.send(JSON.stringify({ error: "Erro ao busca dados do alimentador" }));
     }
   }, 2000);
 
@@ -63,7 +63,7 @@ export function errosIdWS(ws, id) {
   ws.on("close", () => clearTimeout(interval));
 }
 
-export function   monitorWS(ws, id) {
+export function monitorWS(ws, id) {
   if (!id || isNaN(Number(id))) {
     ws.send(JSON.stringify({ erros: "ID do alimentador errado" }));
     ws.close();

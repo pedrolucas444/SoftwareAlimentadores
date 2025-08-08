@@ -2,10 +2,10 @@ import ModbusRTU from "modbus-serial";
 const client = new ModbusRTU();
 
 const config = {
-  ip: "192.168.0.250",
+  ip: "192.168.0.254",
   port: 502,
   id: 99,
-  tempo: 2000,
+  tempo: 3000,
 };
 
 const mapa_leitura = {
@@ -15,11 +15,11 @@ const mapa_leitura = {
       "id",
       "horaLiga",
       "horaDesliga",
+      "doseCiclo",
       "temploCiclo",
-      "quantCiclo",
       "tipoRacao",
+      "quantCiclo",
       "modo",
-      "setPointManual",
     ],
   },
 };
@@ -64,15 +64,21 @@ async function setIpModuloMestre(ip) {
   config.ip = ip;
 }
 
+async function lerAlimentador(id) {
+  const pares = getUltimoCadaID();
+  const encontrado = pares.find(
+    ([chave, item]) => Number(item.alimentador?.id) === Number(id)
+  );
+  return encontrado ? encontrado[1] : null;
+}
+
 async function lerTodosCampos() {
   try {
     if (!client.isOpen) await conectarModuloMestre();
     const respostaGeral = await client.readHoldingRegisters(7, 28);
     const dadosFormatados = {};
-
     Object.entries(mapa_leitura).forEach(([nomeDispositivo, config]) => {
       dadosFormatados[nomeDispositivo] = {};
-
       config.fields.forEach((campo, index) => {
         const endereco = config.address + index;
         const indice = endereco - 7;
@@ -82,9 +88,7 @@ async function lerTodosCampos() {
     });
 
     return dadosFormatados;
-  } catch (err) {
-    console.error("Erro de conexão", err.message);
-  }
+  } catch {}
 }
 
 let historicoLeituras = [];
@@ -173,7 +177,6 @@ async function escreverDispositivoInterno(id, config, valor) {
 }
 
 console.log("Iniciando cliente Modulo Mestre...");
-setInterval(lerTodosCampos, config.tempo);
 
 process.on("SIGINT", () => {
   console.log("\nDesconectando...");
@@ -186,10 +189,8 @@ export default {
   lerTodosCampos,
   adicionarFila,
   lerAlimentador,
-  lerTemperaturaUmidade,
   setIpModuloMestre,
   getHistoricoLeituras,
   getUltimoCadaID,
-  lerErrosAlimentador,
   getIpModuloMestre,
 };

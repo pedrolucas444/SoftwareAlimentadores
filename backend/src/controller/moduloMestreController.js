@@ -4,6 +4,7 @@ class moduloMestreController {
   static async setAlimentador(request, response) {
     try {
       const campos = request.body;
+      //transformando dados de json para vetor
       for (const [config, valor] of Object.entries(campos)) {
         if (typeof valor === "number" && !isNaN(valor)) {
           await moduloMestre.adicionarFila(campos.id, config, valor);

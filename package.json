@@ -2,7 +2,13 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.11",
     "@vitejs/plugin-react": "^4.7.0",
+    "concurrently": "^9.2.0",
     "tailwindcss": "^4.1.11",
     "vite": "^7.0.5"
+  },
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "client": "cd frontend && npm run dev",
+    "server": "cd backend && node app.js"
   }
 }
